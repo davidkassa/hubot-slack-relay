@@ -1,0 +1,34 @@
+{
+  "name": "hubot-slack-relay",
+  "version": "0.0.1",
+  "author": {
+    "name": "David Kassa",
+    "url": "https://github.com/davidkassa"
+  },
+  "license": "MIT",
+  "keywords": [
+    "hubot",
+    "hubot-scripts",
+    "ingress",
+    "relay"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/davidkassa/hubot-slack-relay.git"
+  },
+  "bugs": {
+    "url": "https://github.com/davidkassa/hubot-slack-relay/issues"
+  },
+  "dependencies": {
+    "coffee-script": "~1.6",
+    "log": "1.4.0",
+    "slack-client": "~1.4.0",
+    "string": "^3.1.1"
+  },
+  "devDependencies": {
+    "parent-require": "^1.0.0"
+  },
+  "main": "index.coffee",
+  "readmeFilename": "README.md",
+  "homepage": "https://github.com/davidkassa/hubot-slack-relay"
+}
