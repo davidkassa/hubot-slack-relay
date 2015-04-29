@@ -1,7 +1,7 @@
 {
   "name": "hubot-slack-relay",
-  "description": "A script to relay messages from a local channel to a remote channel on a separate slack server without an account. This script is designed specifically for use with Hubot and the Slack adapter.",
-  "version": "0.0.3",
+  "description": "Hubot script to relay messages between Slack servers.",
+  "version": "0.0.5",
   "author": {
     "name": "David Kassa",
     "url": "https://github.com/davidkassa"
@@ -9,6 +9,7 @@
   "license": "MIT",
   "keywords": [
     "hubot",
+    "slack",
     "hubot-scripts",
     "ingress",
     "relay"
