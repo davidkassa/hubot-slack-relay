@@ -45,8 +45,11 @@ module.exports = (robot) ->
     #store array before saving, due to bad mergeData in brain
     temp = relays
 
-    robot.brain.set BRAIN_KEY, temp
+    robot.brain.set BRAIN_KEY, relays
     robot.brain.save()
+
+    #re-assign relays for deep copy after save
+    relays = temp
 
 
   robot.respond /relay add\s+(\S+)\s+(\S+)\s+(\S+)/i, (res) =>
