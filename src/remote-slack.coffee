@@ -12,7 +12,7 @@ class RemoteSlack extends EventEmitter
 
     options =
       token: @token
-      autoReconnect: true
+      autoReconnect: false
       autoMark: true
 
     @client = new SlackClient options.token, options.autoReconnect, options.autoMark
@@ -42,13 +42,17 @@ class RemoteSlack extends EventEmitter
     @emit "remote.connected", @
 
   send: (envelope, messages...) ->
-    channel = @client.getChannelGroupOrDMByName envelope.room
 
+    if not @client.connected or not @client.authenticated then @client.reconnect()
+
+    channel = @client.getChannelGroupOrDMByName envelope.room
     if not channel and @client.getUserByName(envelope.room)
       user_id = @client.getUserByName(envelope.room).id
       @client.openDM user_id, =>
         this.send envelope, messages...
       return
+
+    if not channel.is_member then return false
 
     for msg in messages
       continue if msg.length < RemoteSlack.MIN_MESSAGE_LENGTH

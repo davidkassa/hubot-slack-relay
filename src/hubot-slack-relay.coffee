@@ -183,19 +183,22 @@ module.exports = (robot) ->
     for relay in relays
       if res.message.room isnt relay.localRoom then continue
       user = { room: relay.remoteRoom }
-      relay.remote.send user, '_' + res.message.user.name + ' said:_ ' + res.match[1]    
+      if not relay.remote.send user, '_' + res.message.user.name + ' said:_ ' + res.match[1]
+        invalidChannelError relay
 
   robot.enter (res) ->
     for relay in relays
       if res.message.room isnt relay.localRoom then continue
       user = { room: relay.remoteRoom }
-      relay.remote.send user, '_' + res.message.user.name + ' has entered #' + res.message.room + '_'
+      if not relay.remote.send user, '_' + res.message.user.name + ' has entered #' + res.message.room + '_'
+        invalidChannelError relay
     
   robot.leave (res) ->
     for relay in relays
       if res.message.room isnt relay.localRoom then continue
       user = { room: relay.remoteRoom }
-      relay.remote.send user, '_' + res.message.user.name + ' has left #' + res.message.room + '_'    
+      if not relay.remote.send user, '_' + res.message.user.name + ' has left #' + res.message.room + '_'
+        invalidChannelError relay
 
 #  robot.catchAll (res) ->
 #    robot.logger.info 'catchAll'
