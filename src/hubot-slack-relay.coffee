@@ -8,6 +8,9 @@
 #   relay add <local-channel> <remote-channel> <remote-token> - Adds a relay with a remote channel. *NOTE:* Tokens are private and this should be setup via Direct Messaging.
 #   relay remove <local-channel> [<remote-channel>]- Removes a relay with a remote channel.
 #   relay list - Lists all existing relays.
+#   relay addignore <user> - Do not relay anything this user says, usually a bot.
+#   relay removeignore <user> - Resume relaying anything the user says.
+#   relay listignore - Lists all ignored users.
 #
 # Author:
 #   davidkassa
@@ -20,15 +23,19 @@ module.exports = (robot) ->
 
   BRAIN_KEY = 'hubot-slack-relay.storage'
   relays = []
+  ignoreUsers = []
 
   brainLoaded = () =>
     #load brain data
+    robot.logger.info 'Load Brain'
     data = (robot.brain.get BRAIN_KEY) || {}
 
     relays = for d in data
       relay = Relay.fromJSON d
       relay.on 'invalidChannel', invalidChannelError
       relay
+
+    ignoreUsers = (robot.brain.get BRAIN_KEY + '.ignoreUsers') || []
 
   invalidChannelError = (relay) =>
     robot.logger.info 'invalidChannelError'
@@ -37,6 +44,7 @@ module.exports = (robot) ->
     user = { room: relay.localRoom }
     robot.adapter.send user, 'Could not deliver message to  \'' + relay.remoteRoom + '\' because ' + remoteBot + ' is not in the channel.' 
 
+  brainLoaded() #call brainLoaded directly for brains without a load event, such as jobot-brain-file or hubot-scripts/file-brain
   robot.brain.on 'loaded', brainLoaded
 
   saveBrain = () =>
@@ -46,11 +54,11 @@ module.exports = (robot) ->
     temp = relays
 
     robot.brain.set BRAIN_KEY, relays
+    robot.brain.set BRAIN_KEY + '.ignoreUsers', ignoreUsers
     robot.brain.save()
 
     #re-assign relays for deep copy after save
     relays = temp
-
 
   robot.respond /relay add\s+(\S+)\s+(\S+)\s+(\S+)/i, (res) =>
     robot.logger.info 'relay add ' + res.match[1] + ' ' + res.match[2] + ' ' + res.match[3]
@@ -111,6 +119,12 @@ module.exports = (robot) ->
     t = S(@newRelay.remote.token).padLeft(5)
     @newResponse.send 'Could not connect to remote relay with token \'' + S('*').repeat(t.length - 5) + S(t.substr(t.length - 5)).trim() + '\'.'
 
+  robot.respond /relay addignore\s+(\S+)/i, (res) =>
+    robot.logger.info 'relay addignore ' + res.match[1]
+    ignoreUsers.push S(res.match[1]).chompLeft('@').s
+    saveBrain()
+    res.send 'Ignoring user \'' + res.match[1] + '\' when relaying'
+
   robot.respond /relay remove\s+(\S+)\s*(\S*)\s*(\S*)/i, (res) =>
     robot.logger.info 'relay remove ' + res.match[1] + ' ' + res.match[2] + ' ' + res.match[3]
 
@@ -165,13 +179,25 @@ module.exports = (robot) ->
     if not found
       res.send 'Could not find any records matching the criteria.'
 
-  robot.respond /relay list/i, (res) =>
+  robot.respond /relay removeignore\s+(\S+)/i, (res) =>
+    robot.logger.info 'relay removeignore ' + res.match[1]
+    removeUser = S(res.match[1]).chompLeft('@').s
+
+    ignoreUsers = ignoreUsers.filter (user) -> user isnt removeUser
+    saveBrain()
+    res.send 'Stopped ignoring user \'' + removeUser + '\''
+
+  robot.respond /relay list$/i, (res) =>
     robot.logger.info 'relay list'
     res.send blockList(relays)
 
+  robot.respond /relay (listignore|ignorelist)$/i, (res) =>
+    robot.logger.info 'relay listignore'
+    res.send blockList(ignoreUsers)
+
 
   blockList = (collection, filter) =>
-    if not collection or collection.length is 0 then return ''
+    if not collection or collection.length is 0 then return '(empty)'
     filter ?= () -> true
     list = '```'
     for item in collection when filter(item)
@@ -179,6 +205,8 @@ module.exports = (robot) ->
     list + '```'
 
   robot.hear /(.+)/i, (res) =>
+
+    if res.message.user.name in ignoreUsers then return false
 
     for relay in relays
       if res.message.room isnt relay.localRoom then continue
