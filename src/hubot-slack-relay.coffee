@@ -23,6 +23,7 @@ module.exports = (robot) ->
 
   brainLoaded = () =>
     #load brain data
+    robot.logger.info 'Load Brain'
     data = (robot.brain.get BRAIN_KEY) || {}
 
     relays = for d in data
@@ -37,6 +38,7 @@ module.exports = (robot) ->
     user = { room: relay.localRoom }
     robot.adapter.send user, 'Could not deliver message to  \'' + relay.remoteRoom + '\' because ' + remoteBot + ' is not in the channel.' 
 
+  brainLoaded() #call brainLoaded directly for brains without a load event, such as jobot-brain-file or hubot-scripts/file-brain
   robot.brain.on 'loaded', brainLoaded
 
   saveBrain = () =>
