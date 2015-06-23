@@ -19,7 +19,7 @@ Relay = require './relay'
 module.exports = (robot) ->
 
   BRAIN_KEY = 'hubot-slack-relay.storage'
-  relays = {}
+  relays = []
 
   brainLoaded = () =>
     #load brain data
