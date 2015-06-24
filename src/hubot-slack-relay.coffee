@@ -37,6 +37,7 @@ module.exports = (robot) ->
     user = { room: relay.localRoom }
     robot.adapter.send user, 'Could not deliver message to  \'' + relay.remoteRoom + '\' because ' + remoteBot + ' is not in the channel.' 
 
+  brainLoaded() #call brainLoaded directly for brains without a load event, such as jobot-brain-file or hubot-scripts/file-brain
   robot.brain.on 'loaded', brainLoaded
 
   saveBrain = () =>
