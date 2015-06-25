@@ -19,7 +19,9 @@ Relay = require './relay'
 module.exports = (robot) ->
 
   BRAIN_KEY = 'hubot-slack-relay.storage'
+  IGNORE_BOTS = process.env.IGNORE_BOTS or true
   relays = []
+  client = robot.adapter.client
 
   brainLoaded = () =>
     #load brain data
@@ -181,6 +183,8 @@ module.exports = (robot) ->
 
   robot.hear /(.+)/i, (res) =>
 
+    if IGNORE_BOTS and  client.getUserByID(res.message.user.id).is_bot then return
+
     for relay in relays
       if res.message.room isnt relay.localRoom then continue
       user = { room: relay.remoteRoom }
@@ -188,6 +192,9 @@ module.exports = (robot) ->
         invalidChannelError relay
 
   robot.enter (res) ->
+
+    if IGNORE_BOTS and  client.getUserByID(res.message.user.id).is_bot then return
+
     for relay in relays
       if res.message.room isnt relay.localRoom then continue
       user = { room: relay.remoteRoom }
@@ -195,6 +202,9 @@ module.exports = (robot) ->
         invalidChannelError relay
     
   robot.leave (res) ->
+
+    if IGNORE_BOTS and  client.getUserByID(res.message.user.id).is_bot then return
+
     for relay in relays
       if res.message.room isnt relay.localRoom then continue
       user = { room: relay.remoteRoom }
