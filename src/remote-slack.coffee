@@ -51,8 +51,8 @@ class RemoteSlack extends EventEmitter
       @client.openDM user_id, =>
         this.send envelope, messages...
       return
-
-    if not channel.is_member then return false
+      
+    if not channel or (@client.self.id not in channel.members and not channel.is_im) then return false
 
     for msg in messages
       continue if msg.length < RemoteSlack.MIN_MESSAGE_LENGTH

@@ -90,7 +90,7 @@ module.exports = (robot) ->
     @newRelay.remote.removeListener('remote.error',newRemoteError)
     @newRelay.on 'invalidChannel', invalidChannelError
 
-    channel = @newRelay.remote.client.getChannelByName @newRelay.remoteRoom
+    channel = @newRelay.remote.client.getChannelGroupOrDMByName @newRelay.remoteRoom
     remoteBot = @newRelay.remote.client.self.name ? 'the remote bot'
 
     if channel
