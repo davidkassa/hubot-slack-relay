@@ -60,11 +60,16 @@ module.exports = (robot) ->
     #re-assign relays for deep copy after save
     relays = temp
 
+  isAuthorized = (res) =>
+    if robot.auth and not robot.auth.isAdmin(res.message.user) and robot.auth.hasRole(res.message.user, "relay")
+      res.send "Sorry, #{res.message.user.name} you don't have permission to perform this relay action."
+      return false
+    return true
+
+
   robot.respond /relay add\s+(\S+)\s+(\S+)\s+(\S+)/i, (res) =>
     robot.logger.info 'relay add ' + res.match[1] + ' ' + res.match[2] + ' ' + res.match[3]
-    if robot.auth and (robot.auth.isAdmin(res.message.user) or robot.auth.hasRole(res.message.user, "relay"))
-      res.send "Sorry, #{res.message.user.name} you don't have permission to perform this relay action."
-      return
+    if not isAuthorized res then return
 
     localRoom = S(res.match[1]).chompLeft('#').s
     remoteRoom = S(res.match[2]).chompLeft('#').s
@@ -124,9 +129,7 @@ module.exports = (robot) ->
 
   robot.respond /relay addignore\s+(\S+)/i, (res) =>
     robot.logger.info 'relay addignore ' + res.match[1]
-    if robot.auth and (robot.auth.isAdmin(res.message.user) or robot.auth.hasRole(res.message.user, "relay"))
-      res.send "Sorry, #{res.message.user.name} you don't have permission to perform this relay action."
-      return
+    if not isAuthorized res then return
 
     ignoreUsers.push S(res.match[1]).chompLeft('@').s
     saveBrain()
@@ -134,9 +137,7 @@ module.exports = (robot) ->
 
   robot.respond /relay remove\s+(\S+)\s*(\S*)\s*(\S*)/i, (res) =>
     robot.logger.info 'relay remove ' + res.match[1] + ' ' + res.match[2] + ' ' + res.match[3]
-    if robot.auth and (robot.auth.isAdmin(res.message.user) or robot.auth.hasRole(res.message.user, "relay"))
-      res.send "Sorry, #{res.message.user.name} you don't have permission to perform this relay action."
-      return
+    if not isAuthorized res then return
 
     localRoom = S(res.match[1]).chompLeft('#').s
     remoteRoom = if res.match[2] then S(res.match[2]).chompLeft('#').s
@@ -191,9 +192,7 @@ module.exports = (robot) ->
 
   robot.respond /relay removeignore\s+(\S+)/i, (res) =>
     robot.logger.info 'relay removeignore ' + res.match[1]
-    if robot.auth and (robot.auth.isAdmin(res.message.user) or robot.auth.hasRole(res.message.user, "relay"))
-      res.send "Sorry, #{res.message.user.name} you don't have permission to perform this relay action."
-      return
+    if not isAuthorized res then return
 
     removeUser = S(res.match[1]).chompLeft('@').s
 
@@ -203,17 +202,13 @@ module.exports = (robot) ->
 
   robot.respond /relay list$/i, (res) =>
     robot.logger.info 'relay list'
-    if robot.auth and (robot.auth.isAdmin(res.message.user) or robot.auth.hasRole(res.message.user, "relay"))
-      res.send "Sorry, #{res.message.user.name} you don't have permission to perform this relay action."
-      return
+    if not isAuthorized res then return
 
     res.send blockList(relays)
 
   robot.respond /relay (listignore|ignorelist)$/i, (res) =>
     robot.logger.info 'relay listignore'
-    if robot.auth and (robot.auth.isAdmin(res.message.user) or robot.auth.hasRole(res.message.user, "relay"))
-      res.send "Sorry, #{res.message.user.name} you don't have permission to perform this relay action."
-      return
+    if not isAuthorized res then return
 
     res.send blockList(ignoreUsers)
 
