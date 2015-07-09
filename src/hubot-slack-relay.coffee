@@ -98,7 +98,7 @@ module.exports = (robot) ->
       relays.push @newRelay
       saveBrain()
 
-      if channel.is_member
+      if @newRelay.remote.client.self.id not in channel.members and not channel.is_im
         @newResponse.send 'Successfully connected to the remote relay and channel \'' + @newRelay.remoteRoom + '\'.'
       else
         @newResponse.send 'Successfully connected to the remote relay but ' + remoteBot + ' needs to be invited to \'' + @newRelay.remoteRoom + '\'.'
