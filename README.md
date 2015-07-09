@@ -38,4 +38,8 @@ Show all existing local server to remote server relay mappings and a partial tok
 
 `hubot relay list`
 
+## Configuration
 
+If you're using the [hubot-auth](https://github.com/hubot-scripts/hubot-auth/) script, you can get the user IDs required for the `HUBOT_AUTH_ADMIN` setting by calling the [users.list API method](https://api.slack.com/methods/users.list/test).
+
+Users can be part of the admin group or a custom group named `relay` can be created.
