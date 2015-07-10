@@ -61,7 +61,7 @@ module.exports = (robot) ->
     relays = temp
 
   isAuthorized = (res) =>
-    if robot.auth and not robot.auth.isAdmin(res.message.user) and robot.auth.hasRole(res.message.user, "relay")
+    if robot.auth? and not robot.auth.isAdmin(res.message.user) and not robot.auth.hasRole(res.message.user, "relay")
       res.send "Sorry, #{res.message.user.name} you don't have permission to perform this relay action."
       return false
     return true
